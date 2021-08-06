@@ -1,0 +1,58 @@
+.container {
+  padding: 30px;
+  font: normal normal 400 18px/1.2 cursive;
+}
+
+input, select, textarea, button {
+  font: inherit;
+  margin-top: 15px;
+}
+
+button {
+  padding: 7px 16px 8px;
+  color: white;
+  background-color: #07bc4c;
+  border: 0;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+button:hover {
+  box-shadow: 0 1px 1px 0  #cfcfcf, 0 2px 5px 0  #cfcfcf;
+  background-color: #1b7ae6;
+}
+
+button:active {
+  transform: scale(0.96);
+}
+
+button:disabled {
+  pointer-events: none;
+	opacity: 0.65;
+}
+
+.info {
+    margin: 25px;
+    padding: 20px 10px 25px 10px;
+    text-align: center;
+    width: 30%;
+    height: 15%;
+    background: #fff;
+    border-radius: 2px;
+    border-width: 2px;
+    border-style: solid;
+}
+
+.info-ok {
+  color: #32a846;;
+  border-color: #32a846;
+}
+
+.info-err {
+  color: #d9534f;
+  border-color: #d9534f;
+}
+
+a {
+  color: #00B7FF;
+}

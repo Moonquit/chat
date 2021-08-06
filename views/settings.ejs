@@ -1,0 +1,154 @@
+<% layout('layout/page') -%>
+<% block('title', 'Settings') -%>
+
+<style>
+    #submit-btn {
+        position: relative;
+        left: 30%;
+    }
+
+    #del-acc-btn {
+        position: absolute;
+        left: 28%;
+    }
+
+    #del-acc-btn:hover {
+        background-color: rgb(228, 43, 43);
+    }
+
+    .del-acc-div {
+        position: relative;
+        display: inline-block;
+    }
+
+    .menu {
+        margin-left: 15px;
+    }
+
+    .menu-elem {
+        margin-left: 15px;
+        margin-top: 30px;
+    }
+
+    input {
+        margin-top: 0;
+    }
+
+    .fields {
+        float: left;
+    }
+
+    .field {
+        clear: both;
+        text-align: right;
+        margin-top: 10px;
+    }
+
+    .input-label {
+        float: left;
+        padding-right: 10px;
+    }
+</style>
+
+<div class="menu">
+
+    <h4>Change Password</h4>
+    <div class="menu-elem">
+
+        <div class="info change-password-info" hidden></div>
+
+        <form name="changePasswd">
+            <div class='fields'>
+                <div class="field">
+                    <label class="input-label">Current password</label>
+                    <input name="curPasswd" type="password"> 
+                </div>
+
+                <div class="field">
+                    <label class="input-label">New password</label>
+                    <input name="newPasswd" type="password">
+                </div>
+
+                <div class="field">
+                    <label class="input-label">Repeat new password</label>
+                    <input name="repNewPasswd" type="password">
+                </div>
+
+                <button id="submit-btn">Change password</button>
+            </div>
+        </form>
+        <div style="clear:both"></div>
+    </div>
+
+    <h4>Delete account</h4>
+    <div class="menu-elem">
+
+        <div class="info del-acc-info" hidden></div>
+
+        <div class="del-acc-div">
+            <div>You can delete your account.</div>
+            <button id="del-acc-btn">Delete</button>
+        </div>
+        
+    </div>
+</div>
+
+<script src="/javascripts/infoController.js"></script>
+<script>
+    document.forms.changePasswd.onsubmit = function(event) {
+        event.preventDefault();
+
+        let target = event.target;
+
+        if (
+            target.curPasswd.value && target.newPasswd.value && target.repNewPasswd.value
+        ) {
+            fetch('/settings?' + new URLSearchParams({act: 'change-password'}), {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json;charset=utf-8'
+				},
+				body: JSON.stringify({
+                    curPasswd: target.curPasswd.value,
+                    newPasswd: target.newPasswd.value,
+                    repNewPasswd: target.repNewPasswd.value
+                })
+			}).then(resp => {
+                let infoDiv = document.querySelector('.change-password-info');
+
+				if (resp.ok) {
+					setInfo('ok', infoDiv, 'The password has been successfully changed.');
+                    setTimeout(() => infoDiv.hidden = true, 2000);
+                    target.curPasswd.value = target.newPasswd.value = target.repNewPasswd.value = '';
+				} else {
+					resp.text().then(text => {
+                        setInfo('err', infoDiv, text);
+                    });
+				}
+			}).catch(err => console.error(err));
+        }
+    }
+
+    document.querySelector('#del-acc-btn').onclick = function(event) {
+        let conf = confirm('Are you sure you want to delete your account?\nIt will be impossible to restore it.');
+        if (conf) {
+            fetch('/settings?' + new URLSearchParams({act: 'delete-account'}), {
+                method: 'POST',
+                headers: {
+					'Content-Type': 'application/json;charset=utf-8'
+				},
+            }).then(resp => {
+                let infoDiv = document.querySelector('.del-acc-info');
+
+                if (resp.ok) {
+                    setInfo('ok', infoDiv, 'Account successfully deleted.');
+                    setTimeout(() => window.location.href = '/', 1000);
+                } else {
+                    resp.text().then(() => {
+                        setInfo('err', infoDiv, text);
+                    });
+                }
+            }).catch(err => console.error(err));
+        }
+    };
+</script>

@@ -1,0 +1,16 @@
+<% layout('layout/page') -%>
+<% block('title', 'Home') -%>
+
+<style>
+    #logged-info {
+        margin-left: 15px;
+    }
+</style>
+
+<p>Welcome to our website with a Chat!</p>
+<% if (user) { %>
+    <div id="logged-info">
+        You are logged in as <b><%=user.get('username') -%></b>,
+        go to <a href="/chat">chat</a>.
+    </div>
+<% } %>

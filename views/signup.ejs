@@ -1,0 +1,82 @@
+<% layout('layout/page') -%>
+<% block('title', 'Sign up') %>
+
+<style>
+	.signup-help {
+		border: solid 1px black;
+		display: inline-block;
+		padding: 8px;
+		margin: 10px;
+	}
+
+	.signup-form {
+		position: relative;
+	}
+
+	.sign-up-div {
+		position: absolute;
+		margin-top: 10px;
+		margin-left: 8%;
+	}
+</style>
+
+<p>Come up with a Username and Password.</p>
+
+<div class="signup-help">
+	<p>Field `Username` can contain only Latin characters and digits.<p>
+	<p>(You can't use special characters.)</p>
+	<p>Examples of correct names:</p>
+	<ul>
+		<li>user</li>
+		<li>User27</li>
+	</ul>
+</div>
+
+<div class="signup-help">
+	<p>Field `Password` field can contain any characters except spaces.<p>
+	<p>(You can use special characters.)</p>
+	<p>Examples of correct passwords:</p>
+	<ul>
+		<li>my$Strong#Password123</li>
+		<li>etc.</li>
+	</ul>
+</div>
+
+<div class="info" hidden></div>
+
+<form class="signup-form">
+  <input name="username" type="text" placeholder="Username">
+  <input name="password" type="password" placeholder="Password">
+  <button type="submit">Sign up</button>
+</form>
+
+<script src="javascripts/infoController.js"></script>
+<script>
+    let form = document.querySelector('.signup-form');
+
+    form.onsubmit = function(event) {
+    	event.preventDefault();
+    	let target = event.target;
+
+		if (target.username.value && target.password.value) {
+			fetch('/signup', {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json;charset=utf-8'
+				},
+				body: JSON.stringify({username: target.username.value, password: target.password.value})
+			}).then(resp => {
+				let infoDiv = document.querySelector('.info');
+
+				if (resp.ok) {
+					setInfo('ok', infoDiv, 'You have successfully signed up.');
+					setTimeout(() => window.location.href = '/', 1000);
+				} else {		
+					resp.text().then(text => {
+						setInfo('err', infoDiv, text);
+					});
+				}
+			}).catch(console.error);
+		}
+	}
+</script>

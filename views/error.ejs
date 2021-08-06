@@ -1,0 +1,9 @@
+<% layout('layout/page') -%>
+<% block('title', 'Error') -%>
+
+<p><%=message %></p>
+<% if (error.hasOwnProperty('status') && error.hasOwnProperty('stack')) { %>
+    <hr>
+    <h2>Status code: <%= error.status %></h2>
+    <pre><%= error.stack %></pre>
+<% } %>

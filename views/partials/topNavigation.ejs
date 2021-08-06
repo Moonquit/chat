@@ -1,0 +1,91 @@
+
+<!DOCTYPE html>
+<html>
+    <head>
+    </head>
+<body>
+    <style>
+        .navbar > ul {
+            position: sticky;
+            top: 0;
+            list-style-type: none;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            border: 1px solid #3b3d42;
+            background-color: #f3f3f3;
+        }
+        
+        .navbar li {
+            float: left;
+        }
+        
+        .navbar li a {
+            display: block;
+            color: #222121;
+            text-align: center;
+            padding: 14px 16px;
+            text-decoration: none;
+            font: normal normal 400 18px/1.2 cursive;
+        }
+        
+        .navbar li a:hover:not(.active) {
+            background-color: #ddd;
+        }
+        
+        .navbar li a.active {
+            color: white;
+            background-color: #07bc4c;
+
+        }
+    </style>
+
+    <div class="navbar">
+        <ul>
+            <li><a href="/">Home</a></li>
+            <% if (user) { %>
+                <li><a href="/chat">Chat</a></li>
+                <li><a href="/settings">Settings</a></li>
+            <% } %>
+            <% if (user) { %>
+                <li><a onclick="logout()">Logout</a></li>
+            <% } else { %>
+                <li><a href="/login">Login</a></li>
+                <li><a href="/signup">Sign up</a></li>
+            <% } %>
+        </ul>
+    </div>
+
+    <script>
+        function logout() {
+            let form = document.createElement('form');
+
+            form.method ='POST';
+            form.action = '/logout';
+
+            document.body.append(form);
+            form.submit();
+        }
+
+        function makeActive(path) {
+            let elem = document.querySelector(`li > a[href="${path}"]`);
+            if (elem) {
+                elem.classList.add('active');
+            }
+        }
+
+        function delActive() {
+            for (let elem of document.querySelectorAll('li > a')) {
+                if (elem.classList.contains('active')) {
+                    elem.classList.remove('active');
+                }
+            }
+        }
+        
+        delActive();
+        makeActive(window.location.pathname);
+        
+    </script>
+
+</body>
+</html>

@@ -1,0 +1,164 @@
+<% layout('layout/page') -%>
+<% block('title', 'Chat') -%>
+
+
+<style>
+        
+    #messages {
+        padding: 10px;
+        overflow: auto;
+        width:500px;
+        height:200px;
+    }
+
+    #from-user {
+        color: #2a5885;
+    }
+
+    #statusDiv {
+        padding: 14px;
+    }
+    
+    .brackets {
+        color: black;
+    }
+
+
+</style>
+
+<p>Welcome to Chat, <b id="self-user"><%=user.get('username') -%></b>!</p>
+
+<div id="chat">
+    <div class="info" hidden></div>
+    <div id="messages"></div>
+    <br>
+    <form class="message-form">
+        <input type="text" class="message-input" autocomplete="off" autofocus placeholder="Enter your message">
+        <button type="submit" class="message-submit-btn">Send</button>
+        <button onclick="scrollChat(true)">Up</button>
+        <button onclick="scrollChat()">Down</button>
+    </form>
+    
+</div>
+
+<script src="/socket.io/socket.io.js"></script>
+<script src="/javascripts/infoController.js"></script>
+<script>
+    function printMessage(msgObj) {
+
+        if (msgObj.fromUser === io.myStorage.selfUser) {
+            msgObj.fromUser = 'You';
+        }
+
+        // main div
+        let mainDiv = document.createElement('div');
+        mainDiv.textContent = ` > ${msgObj.text}`;
+
+        // from-user
+        let divFromUser = document.createElement('span');
+        divFromUser.id = 'from-user';
+        divFromUser.textContent = msgObj.fromUser;
+        mainDiv.insertAdjacentElement('afterBegin', divFromUser);
+
+        // brackets
+        let bracketLeft = document.createElement('span');
+        bracketLeft.classList.add('brackets');
+        bracketLeft.textContent = '[ ';
+
+        let bracketRight = document.createElement('span');
+        bracketRight.classList.add('brackets');
+        bracketRight.textContent = ' ]';
+
+        divFromUser.insertAdjacentElement('afterBegin', bracketLeft);
+        divFromUser.insertAdjacentElement('beforeEnd', bracketRight);
+       
+        // append in body
+        messages.append(mainDiv);
+        scrollChat();
+    }
+
+    function printStatus(statusObj) {
+        let bold;
+
+        let div = document.createElement('div');
+        div.id = 'statusDiv';
+
+        if (statusObj.user) {
+            bold = document.createElement('b');
+            bold.textContent = statusObj.user + ' ';
+        }
+    
+        div.textContent = statusObj.text;
+        if (bold) div.insertAdjacentElement('afterBegin', bold);
+
+        messages.append(div);
+        scrollChat();
+    }
+
+    function scrollChat(up) {
+        let elem = document.querySelector('#messages');
+        if (up) {
+            elem.scrollTop = 0;
+        } else {
+            elem.scrollTop = elem.scrollHeight;
+        }
+    }   
+
+    const socket = io();
+    let infoDiv = document.querySelector('.info');
+
+    io.myStorage = {
+        selfUser: document.querySelector('#self-user').textContent,
+        userLeft: false,
+        connectionWasLost: false
+    }
+
+    document.querySelector('.message-form').onsubmit = function(e) {
+        let input = document.querySelector('.message-input');
+        let text = input.value;
+
+        if (text) {
+            input.value = '';
+            socket.emit('message', text, function(data) {
+                printMessage({fromUser: "You", text: text});
+            });
+        }
+
+        return false;
+    }
+
+    socket
+        .on('message', printMessage)
+        .on('join', function(user) {
+            printStatus({user: user, text: 'joined the chat'});
+        })
+        .on('leave', function(user) {
+            printStatus({user: user, text: 'left the chat'});
+        })
+        .on('logout', function() {
+            printStatus({text: 'You left the chat'});
+            io.myStorage.userLeft = true;
+        })
+        .on('connect', function() {
+            if (!io.myStorage.connectionWasLost) {
+                printStatus({text: 'You joined the chat'});   
+            }
+            
+            document.querySelector('.message-submit-btn').disabled = false;
+            if (!infoDiv.hidden) infoDiv.hidden = true;
+            
+        })
+        .on('disconnect', function() {
+            document.querySelector('.message-submit-btn').disabled = true;
+            if (!io.myStorage.userLeft) {
+                io.myStorage.connectionWasLost = true;
+                setInfo('err', infoDiv, 'Connection lost.');  
+            }
+        })
+        .on('connect_error', function(err) {
+            console.error('error', err);
+        })
+
+
+</script>
+

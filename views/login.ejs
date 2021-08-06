@@ -1,0 +1,57 @@
+<% layout('layout/page') -%>
+<% block('title', 'Log in') -%>
+
+<style>
+	.login-form {
+		position: relative;
+	}
+
+	.sign-up-div {
+		position: absolute;
+		margin-top: 10px;
+		margin-left: 8%;
+	}
+</style>
+
+<p>Enter your Username and Password.</p>
+
+<div class="info" hidden></div>
+
+<form class="login-form">
+  <input name="username" type="text" placeholder="Username">
+  <input name="password" type="password" placeholder="Password">
+  <button type="submit">Login</button>
+</form>
+
+<div class="sign-up-div">Don't you have an account yet? <a href="/signup">Sign up</a>.</div>
+
+<script src="/javascripts/infoController.js"></script>
+<script>
+    let form = document.querySelector('.login-form');
+
+    form.onsubmit = function(event) {
+    	event.preventDefault();
+    	let target = event.target;
+
+		if (target.username.value && target.password.value) {
+			fetch('/login', {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json;charset=utf-8'
+				},
+				body: JSON.stringify({username: target.username.value, password: target.password.value})
+			}).then(resp => {
+				let infoDiv = document.querySelector('.info');
+
+				if (resp.ok) {
+					setInfo('ok', infoDiv, 'You have successfully logged in.');
+					setTimeout(() => window.location.href = '/', 1000);
+				} else {		
+					resp.text().then(text => {
+						setInfo('err', infoDiv, text);
+					});
+				}
+			}).catch(console.error);
+		}
+	}
+</script>
