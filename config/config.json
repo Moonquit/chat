@@ -1,0 +1,23 @@
+{
+    "env": "production",
+    "port": 80,
+    "host": "0.0.0.0",
+    "mongo": {
+        "uri":  "secret",
+        "options": {
+            "useNewUrlParser": true,
+            "useUnifiedTopology": true,
+            "useCreateIndex": true
+        }
+    },
+    "session": {
+        "secret": "secret",
+        "key": "sid",
+        "cookie": {
+            "path": "/",
+            "httpOnly": true,
+            "maxAge": null
+        }
+    },
+    "reservedNames": ["bot", "test", "admin", "root"]
+}
